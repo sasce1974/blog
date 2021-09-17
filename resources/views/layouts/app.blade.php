@@ -76,6 +76,10 @@
             </div>
         </nav>
 
+        <div class="mx-2 mx-lg-5 my-2">
+            @include('layouts._messages')
+        </div>
+
         <main class="py-4">
             @yield('content')
         </main>

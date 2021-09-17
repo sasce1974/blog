@@ -27,7 +27,7 @@ Route::get('/home', 'HomeController@index')->name('home')->middleware('verified'
 
 Route::resource('role', 'RoleController');
 
-Route::resource('post', 'PostController');
+Route::resource('post', 'PostController')->middleware(['auth']);
 
 Route::get('/user', 'UserController@index');
 Route::get('/user/{user}', 'UserController@show')->name('user.show');

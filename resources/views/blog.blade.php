@@ -10,7 +10,7 @@
 
                 @if($posts->count() < 1)
                     <h4>There are no posts yet. Would you like to create the first one?</h4>
-                    <div class="text-center"><button class="btn btn-primary btn-lg m-5">CREATE POST</button></div>
+                    <div class="text-center"><a href="{{route('post.create')}}" class="btn btn-primary btn-lg m-5">CREATE POST</a></div>
                 @else
 
                 <!-- Featured blog post-->
@@ -20,7 +20,7 @@
                         <div class="small text-muted">Created {{$featured->created_at->diffForHumans()}} by {{$featured->author->name}}</div>
                         <h2 class="card-title">{{$featured->title}}</h2>
                         <p class="card-text">{{$featured->content}}</p>
-                        <a class="btn btn-primary" href="{{route('post.show', $featured->id)}}">Read more →</a>
+                        <a class="btn btn-primary" href="{{route('post.show', $featured->slug)}}">Read more →</a>
                     </div>
                 </div>
                 <!-- Nested row for non-featured blog posts-->

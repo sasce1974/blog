@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
@@ -27,11 +28,12 @@ class PostController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function create(Request $request)
+    public function create()
     {
 
+        return view('post.create');
 
     }
 
@@ -45,13 +47,21 @@ class PostController extends Controller
     {
         $request->validate([
             'title'=>'required|string|max:255',
-            'content'=> 'required|text|max:2000',
-            'category_id'=>'number|nullable'
+            'content'=> 'required|string|max:2000|min:50',
+            'category_id'=>'array|nullable'
         ]);
 
-        $post = Auth::user()->post()->create($request->all());
+        $slug = Str::of($request->title)->slug('_');
+//dd($slug);
+        $post = Auth::user()->posts()->create([
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'slug' => $slug
+        ]);
 
-        return view('post.show', compact('post'));
+        $post->categories()->sync($request->category_id);
+
+        return redirect()->route('post.show', $post->slug)->with('success', 'Post created');
     }
 
     /**

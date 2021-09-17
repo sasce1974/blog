@@ -18,8 +18,9 @@ class CreatePostsTable extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
-            $table->integer('category_id')->default(0);
+            $table->string('slug');
             $table->integer('viewed')->default(0);
+            $table->boolean('approved')->default(1);
             $table->timestamps();
 
         });
