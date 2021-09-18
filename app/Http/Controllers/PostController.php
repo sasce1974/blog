@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,14 +17,30 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::where('approved', true)->get();
+
+        $categories = Category::all();
 
         $featured = null;
 
-        if($posts->count() > 0) $featured = $posts->random(1)[0];
+        if($posts->count() > 0)
+            $featured = $posts->random(1)->first();
 
-        return view('blog', compact('posts', 'featured'));
+        return view('blog', compact('posts', 'featured', 'categories'));
     }
+
+
+    public function indexByCategory($id){
+
+        $category = Category::findOrFail($id);
+
+        $posts = $category->posts;
+
+        $categories = Category::all();
+
+        return view('blog', compact('posts', 'categories'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -33,7 +50,7 @@ class PostController extends Controller
     public function create()
     {
 
-        return view('post.create');
+        return view('post.create', ['categories' => Category::all()]);
 
     }
 
@@ -72,7 +89,11 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return view('post.show', compact('post'));
+        $categories = Category::all();
+
+        $postCategories = $post->categories;
+
+        return view('post.show', compact('post','postCategories','categories'));
     }
 
     /**
@@ -83,7 +104,13 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        \Gate::authorize('manage-post', $post);
+
+        $categories = Category::all();
+
+        $postCategoriesArray = $post->categories->pluck('id')->toArray();
+
+        return view('post.edit', compact('post', 'categories', 'postCategoriesArray'));
     }
 
     /**
@@ -95,7 +122,25 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        \Gate::authorize('manage-post', $post);
+
+        $request->validate([
+            'title'=>'required|string|max:255',
+            'content'=> 'required|string|max:2000|min:50',
+            'category_id'=>'array|nullable'
+        ]);
+
+        $slug = Str::of($request->title)->slug('_');
+
+        $post->update([
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'slug' => $slug
+        ]);
+
+        $post->categories()->sync($request->category_id);
+
+        return redirect()->route('post.show', $post->slug)->with('success', 'Post updated');
     }
 
     /**
@@ -106,6 +151,33 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        \Gate::authorize('manage-post', $post);
+
+        //$post->comments()->delete();
+
+        $post->delete();
+
+        return redirect()->route('post')->with('success', 'Post deleted');
+    }
+
+
+    public function approve($id){
+        $post = Post::findOrFail($id);
+
+        $post->update(['approved'=>true]);
+
+        session()->flash('success', 'Post approved');
+
+        return redirect('/dashboard#tabs-2');
+    }
+
+    public function disapprove($id){
+        $post = Post::findOrFail($id);
+
+        $post->update(['approved'=>false]);
+
+        session()->flash('success', 'Post disapproved');
+
+        return redirect('/dashboard#tabs-2');
     }
 }

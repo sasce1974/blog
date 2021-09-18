@@ -10,10 +10,27 @@
                         <!-- Post title-->
                         <h1 class="fw-bolder mb-1">{{$post->title}}</h1>
                         <!-- Post meta content-->
-                        <div class="text-muted fst-italic mb-2">Posted {{$post->created_at->diffForHumans()}} by {{$post->author->name}}</div>
+                        <div class="text-muted fst-italic mb-2">Posted {{$post->created_at->diffForHumans()}} by {{$post->author->name}}
+                            @can('manage-post', $post)
+                            <span class="ml-3">
+                                <a class="mx-1" href="{{route('post.edit', $post->slug)}}">{{__('Edit')}}</a>
+                                <form class="d-inline" action="{{route('post.destroy', $post->slug)}}" method="post">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-link text-danger py-0"
+                                            style="transform:translate(0, -3px)"
+                                            onclick="return confirm('Are you sure?')">
+                                        {{ __('Delete') }}
+                                    </button>
+                                </form>
+                            </span>
+                            @endcan
+                        </div>
                         <!-- Post categories-->
-                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">Web Design</a>
-                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">Freebies</a>
+                        @foreach($postCategories as $category)
+                        <a class="badge bg-secondary text-decoration-none link-light" href="{{route('post.category', $category->id)}}">{{$category->name}}</a>
+{{--                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">Freebies</a>--}}
+                        @endforeach
                     </header>
                     <!-- Preview image figure-->
                     <figure class="mb-4"><img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..." /></figure>
@@ -21,6 +38,8 @@
                     <section class="mb-5">
                         <p>{!! nl2br($post->content) !!}</p>
                     </section>
+
+
                 </article>
                 <!-- Comments section-->
                 <section class="mb-5">
@@ -81,30 +100,22 @@
                 <div class="card mb-4">
                     <div class="card-header">Categories</div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <ul class="list-unstyled mb-0">
-                                    <li><a href="#!">Web Design</a></li>
-                                    <li><a href="#!">HTML</a></li>
-                                    <li><a href="#!">Freebies</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-sm-6">
-                                <ul class="list-unstyled mb-0">
-                                    <li><a href="#!">JavaScript</a></li>
-                                    <li><a href="#!">CSS</a></li>
-                                    <li><a href="#!">Tutorials</a></li>
-                                </ul>
-                            </div>
-                        </div>
+                        <ul class="list-unstyled d-flex flex-wrap mb-0">
+                            @foreach($categories as $category)
+                                <li class="w-50 text-left"><a href="{{route('post.category', $category->id)}}">{{$category->name}}</a></li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
                 <!-- Side widget-->
-                <div class="card mb-4">
+                {{--<div class="card mb-4">
                     <div class="card-header">Side Widget</div>
                     <div class="card-body">You can put anything you want inside of these side widgets. They are easy to use, and feature the Bootstrap 5 card component!</div>
-                </div>
+                </div>--}}
             </div>
         </div>
     </div>
+
+
+
 @endsection

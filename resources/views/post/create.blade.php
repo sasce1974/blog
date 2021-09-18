@@ -33,7 +33,18 @@
                             </div>
 
 {{--                            choose category here --}}
-                            <div class="text-center">
+                            <h6>Category</h6>
+                            <div class="mb-3 d-flex flex-wrap">
+
+                                @foreach($categories as $category)
+                                    <div class="d-block pl-4 w-25">
+
+                                        <input id="{{$category->name}}" type="checkbox" class="form-check-input" name="category_id[]" value="{{$category->id}}">
+                                        <div>{{$category->name}}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="text-center mt-3 pt-3 border-top">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </div>
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    protected $fillable=['title', 'content', 'slug', 'viewed'];
+    protected $fillable=['title', 'content', 'slug', 'viewed', 'approved'];
 
     public function author(){
         return $this->belongsTo(User::class, 'user_id');
@@ -14,7 +14,7 @@ class Post extends Model
 
 
     public function categories(){
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class)->withTimestamps();
     }
 
 
@@ -28,4 +28,8 @@ class Post extends Model
         return 'slug';
     }
 
+
+    public function isApproved(){
+        return $this->approved === 1;
+    }
 }

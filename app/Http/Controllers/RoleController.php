@@ -26,21 +26,31 @@ class RoleController extends Controller
     }
 
     public function store(Request $request){
-        //gate
+
+        \Gate::authorize('admin-management');
+
         $request->validate(
             [
-                'name'=>'string|max:100'
+                'role_name'=>'string|max:100'
             ]);
 
-        $role = Role::create($request->all());
+        Role::create(['name'=> $request->role_name]);
 
-        return back()->with('success', 'Role created');
+        session()->flash('success', 'Role created');
+
+        return redirect('/dashboard#tabs-4');
     }
 
 
     public function destroy(Role $role){
-        //gate
+
+        \Gate::authorize('admin-management');
+
         $role->delete();
-        return back()->with('success', 'Role deleted');
+
+        session()->flash('success', 'Role deleted');
+
+        return redirect('/dashboard#tabs-4');
+
     }
 }

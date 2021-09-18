@@ -50,17 +50,19 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role_id' => ['number|min:0']
+            'role_id' => ['numeric', 'nullable']
         ]);
 
         //return back to index instead...
-        return User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'email_verified_at'=> now(),
             'role_id' => $request->role_id
         ]);
 
+        return redirect()->back()->with('success', 'User created');
     }
 
     /**
@@ -132,9 +134,22 @@ class UserController extends Controller
     {
         \Gate::authorize('manage-profile', $user);
 
+        foreach ($user->posts() as $post){
+            //$post->comments()->delete();
+            $post->categories()->sync([]);
+            $post->delete();
+        }
+
         $user->delete();
 
         //if user is not the admin, logout...
-        return view('welcome');
+        if(Auth::check() && !Auth::user()->isAdmin()) {
+            Auth::logout();
+            return redirect()->route('post')->with('success', 'User deleted');
+        }
+
+        return redirect()->back()->with('success', 'User deleted');
+
+        //return redirect()->route('post')->with('success', 'User deleted');
     }
 }

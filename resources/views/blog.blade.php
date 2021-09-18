@@ -8,23 +8,74 @@
             <!-- Blog entries-->
             <div class="col-lg-8">
 
-                @if($posts->count() < 1)
-                    <h4>There are no posts yet. Would you like to create the first one?</h4>
-                    <div class="text-center"><a href="{{route('post.create')}}" class="btn btn-primary btn-lg m-5">CREATE POST</a></div>
-                @else
+            @if($posts->count() < 1)
+                <h4>{{ __('There are no posts yet. Would you like to create the first one?') }}</h4>
+                <div class="text-center"><a href="{{route('post.create')}}" class="btn btn-primary btn-lg m-5">{{__('CREATE POST')}}</a></div>
+            @else
 
                 <!-- Featured blog post-->
+                @if(isset($featured))
                 <div class="card mb-4">
                     <a href="#!"><img class="card-img-top" src="https://dummyimage.com/850x350/dee2e6/6c757d.jpg" alt="..." /></a>
                     <div class="card-body">
-                        <div class="small text-muted">Created {{$featured->created_at->diffForHumans()}} by {{$featured->author->name}}</div>
+                        <div class="small text-muted">Created {{$featured->created_at->diffForHumans()}} by {{$featured->author->name}}
+                            @can('manage-post', $featured)
+                                <div class="d-inline ml-3">
+                                <a class="mx-1" href="{{route('post.edit', $featured->slug)}}">{{__('Edit')}}</a>
+                                <form class="d-inline p-0 m-0" action="{{route('post.destroy', $featured->slug)}}" method="post">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-link text-danger py-0"
+                                            style="transform:translate(0, -3px)"
+                                            onclick="return confirm('Are you sure?')">
+                                        {{__('Delete')}}
+                                    </button>
+                                </form>
+                            </div>
+                            @endcan
+                        </div>
                         <h2 class="card-title">{{$featured->title}}</h2>
-                        <p class="card-text">{{$featured->content}}</p>
-                        <a class="btn btn-primary" href="{{route('post.show', $featured->slug)}}">Read more →</a>
+                        <p class="card-text">{{\Illuminate\Support\Str::limit($featured->content, 200)}}</p>
+                        <a class="btn btn-primary" href="{{route('post.show', $featured->slug)}}">{{__('Read more')}} →</a>
                     </div>
                 </div>
+                @endif
                 <!-- Nested row for non-featured blog posts-->
-                <div class="row">
+                <div class="d-flex align-content-between flex-wrap" style="gap: 15px">
+
+                @foreach($posts as $post)
+                        <div class="card mb-4" style="width: 33%">
+                            <a href="{{route('post.show', $post->slug)}}"><img class="card-img-top" src="https://dummyimage.com/700x350/dee2e6/6c757d.jpg" alt="..." /></a>
+                            <div class="card-body">
+                                <div class="small text-muted">{{$post->created_at->format('M d Y')}}
+                                    @can('manage-post', $post)
+                                    <div class="d-inline ml-3">
+                                        <a class="mx-1" href="{{route('post.edit', $post->slug)}}">{{__('Edit')}}</a>
+
+                                        <form class="d-inline" action="{{route('post.destroy', $post->slug)}}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-link text-danger py-0"
+                                                    style="transform:translate(0, -3px)"
+                                                    onclick="return confirm('Are you sure?')">
+                                                {{ __('Delete') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                    @endcan
+                                </div>
+                                <h2 class="card-title h4">{{$post->title}}</h2>
+                                <p class="card-text">{{Str::limit($post->content, 50)}}</p>
+                                <a class="btn btn-primary" href="{{route('post.show', $post->slug)}}">{{__('Read more')}} →</a>
+                            </div>
+                        </div>
+                @endforeach
+
+                </div>
+
+
+
+                {{--<div class="row">
                     <div class="col-lg-6">
                         <!-- Blog post-->
                         <div class="card mb-4">
@@ -69,9 +120,16 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>--}}
                 <!-- Pagination-->
-                <nav aria-label="Pagination">
+
+                    @if(method_exists($posts, 'links'))
+                        <div class="w-100 d-flex flex-row justify-content-center">
+                            {{$posts->links()}}
+                        </div>
+                    @endif
+
+                {{--<nav aria-label="Pagination">
                     <hr class="my-0" />
                     <ul class="pagination justify-content-center my-4">
                         <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Newer</a></li>
@@ -82,8 +140,8 @@
                         <li class="page-item"><a class="page-link" href="#!">15</a></li>
                         <li class="page-item"><a class="page-link" href="#!">Older</a></li>
                     </ul>
-                </nav>
-                @endif
+                </nav>--}}
+            @endif
 
             </div>
 
@@ -93,43 +151,33 @@
             <div class="col-lg-4">
                 <!-- Search widget-->
                 <div class="card mb-4">
-                    <div class="card-header">Search</div>
+                    <div class="card-header">{{ __('Search') }}</div>
                     <div class="card-body">
                         <div class="input-group">
                             <input class="form-control" type="text" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
-                            <button class="btn btn-primary" id="button-search" type="button">Go!</button>
+                            <button class="btn btn-primary" id="button-search" type="button">{{ __('Go!') }}</button>
                         </div>
                     </div>
                 </div>
                 <!-- Categories widget-->
                 <div class="card mb-4">
-                    <div class="card-header">Categories</div>
+                    <div class="card-header">{{ __('Categories') }}</div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <ul class="list-unstyled mb-0">
-                                    <li><a href="#!">Web Design</a></li>
-                                    <li><a href="#!">HTML</a></li>
-                                    <li><a href="#!">Freebies</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-sm-6">
-                                <ul class="list-unstyled mb-0">
-                                    <li><a href="#!">JavaScript</a></li>
-                                    <li><a href="#!">CSS</a></li>
-                                    <li><a href="#!">Tutorials</a></li>
-                                </ul>
-                            </div>
-                        </div>
+                        <ul class="list-unstyled d-flex flex-wrap mb-0">
+                            @foreach($categories as $category)
+                            <li class="w-50 text-left"><a href="{{route('post.category', $category->id)}}">{{$category->name}}</a></li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
                 <!-- Side widget-->
-                <div class="card mb-4">
+                {{--<div class="card mb-4">
                     <div class="card-header">Side Widget</div>
                     <div class="card-body">You can put anything you want inside of these side widgets. They are easy to use, and feature the Bootstrap 5 card component!</div>
-                </div>
+                </div>--}}
             </div>
         </div>
+
     </div>
 
 

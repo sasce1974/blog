@@ -30,8 +30,17 @@
                     <td><span class="col11">{{ $user->role ? $user->role->name : "Unspecified" }}</span></td>
                     <td><span class="col10">{{ $user->created_at->diffForHumans() }}</span></td>
                     <td><span class="col10">{{ $user->posts()->count() }}</span></td>
-                    <td><span><a class="btn btn-primary btn-sm">Edit</a> </span></td>
-                    <td><span><a class="btn btn-danger btn-sm">Delete</a> </span></td>
+                    <td><span><a href="{{route('user.edit', $user->id)}}" class="btn btn-primary btn-sm">Edit</a> </span></td>
+                    <td>
+                        <form action="{{route('user.destroy', $user->id)}}" method="post">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Are you sure?')">
+                                {{ __('Delete') }}
+                            </button>
+                        </form>
+                    </td>
                 </tr>
 
             @endforeach

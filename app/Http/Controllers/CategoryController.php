@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use Illuminate\Http\Request;
+use Illuminate\Session;
 
 class CategoryController extends Controller
 {
@@ -14,7 +15,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -35,7 +36,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        \Gate::authorize('admin-management');
+
+        $request->validate(['category_name' => 'required|string|max:50']);
+
+        Category::create(['name'=>$request->category_name]);
+
+        session()->flash('success', 'New category created');
+
+        return redirect('/dashboard#tabs-3');
     }
 
     /**
@@ -78,8 +87,16 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        $category->posts()->sync([]);
+
+        $category->delete();
+
+        session()->flash('success', 'Category ' . $category->name . ' deleted');
+
+        return redirect('/dashboard#tabs-3');
     }
 }
