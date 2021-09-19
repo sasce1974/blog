@@ -36,8 +36,22 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         //Only post author can manage post
-        Gate::define('manage-post', function ($user, $post){
+        Gate::define('edit-post', function ($user, $post){
             return $user->id === $post->user_id;
+        });
+
+        Gate::define('delete-post', function ($user, $post){
+            return $user->isAdmin() || $user->id === $post->user_id;
+        });
+
+
+        //Only comment author can manage post
+        Gate::define('edit-comment', function ($user, $comment){
+            return $user->id === $comment->user_id;
+        });
+
+        Gate::define('delete-comment', function ($user, $comment){
+            return $user->isAdmin() || $user->id === $comment->user_id;
         });
     }
 }

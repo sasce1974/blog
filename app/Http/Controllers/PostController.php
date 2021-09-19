@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\Post;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -93,6 +94,9 @@ class PostController extends Controller
 
         $postCategories = $post->categories;
 
+        //todo set cookie to prevent continuous incrementing
+        $post->increment('viewed');
+
         return view('post.show', compact('post','postCategories','categories'));
     }
 
@@ -104,7 +108,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        \Gate::authorize('manage-post', $post);
+        \Gate::authorize('edit-post', $post);
 
         $categories = Category::all();
 
@@ -122,7 +126,7 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        \Gate::authorize('manage-post', $post);
+        \Gate::authorize('edit-post', $post);
 
         $request->validate([
             'title'=>'required|string|max:255',
@@ -151,7 +155,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        \Gate::authorize('manage-post', $post);
+        \Gate::authorize('delete-post', $post);
 
         //$post->comments()->delete();
 

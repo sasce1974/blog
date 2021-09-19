@@ -29,6 +29,7 @@ Route::get('/dashboard', 'HomeController@index')
 
 Route::resource('role', 'RoleController');
 
+// Post routes
 Route::resource('post', 'PostController');
 Route::get('/post/category/{id}', 'PostController@indexByCategory')
     ->name('post.category');
@@ -55,3 +56,14 @@ Route::post('/category/store', 'CategoryController@store')
 
 Route::delete('/category/{id}', 'CategoryController@destroy')
     ->name('category.destroy');
+
+//Comment routes
+Route::resource('post.comment', 'CommentController');
+Route::post('/comment/{post}/reply', 'CommentController@storeReply')
+    ->name('comment.reply');
+Route::patch('/comment/{id}/approve', 'CommentController@approve')
+    ->name('comment.approve')
+    ->middleware(['auth', 'admin']);
+Route::patch('/comment/{id}/disapprove', 'CommentController@disapprove')
+    ->name('comment.disapprove')
+    ->middleware(['auth', 'admin']);

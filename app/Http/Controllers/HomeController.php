@@ -30,10 +30,15 @@ class HomeController extends Controller
     public function index()
     {
         if(Auth::user()->isAdmin()){
+
             $users = User::paginate(15);
-            $posts = Post::paginate(15);
+
+            $posts = Post::with('allComments')->paginate(15);
+
             $categories = Category::all();
+
             $roles = Role::all();
+            //dd($posts[3]->allComments);
             return view('home', compact('users', 'posts', 'categories', 'roles'));
         }
 

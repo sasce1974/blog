@@ -19,9 +19,13 @@
                     <a href="#!"><img class="card-img-top" src="https://dummyimage.com/850x350/dee2e6/6c757d.jpg" alt="..." /></a>
                     <div class="card-body">
                         <div class="small text-muted">Created {{$featured->created_at->diffForHumans()}} by {{$featured->author->name}}
-                            @can('manage-post', $featured)
-                                <div class="d-inline ml-3">
+
+                            <div class="d-inline ml-3">
+                                @can('edit-post', $featured)
                                 <a class="mx-1" href="{{route('post.edit', $featured->slug)}}">{{__('Edit')}}</a>
+                                @endcan
+
+                                @can('delete-post', $featured)
                                 <form class="d-inline p-0 m-0" action="{{route('post.destroy', $featured->slug)}}" method="post">
                                     @csrf
                                     @method('DELETE')
@@ -31,8 +35,9 @@
                                         {{__('Delete')}}
                                     </button>
                                 </form>
+                                @endcan
                             </div>
-                            @endcan
+
                         </div>
                         <h2 class="card-title">{{$featured->title}}</h2>
                         <p class="card-text">{{\Illuminate\Support\Str::limit($featured->content, 200)}}</p>
@@ -48,10 +53,13 @@
                             <a href="{{route('post.show', $post->slug)}}"><img class="card-img-top" src="https://dummyimage.com/700x350/dee2e6/6c757d.jpg" alt="..." /></a>
                             <div class="card-body">
                                 <div class="small text-muted">{{$post->created_at->format('M d Y')}}
-                                    @can('manage-post', $post)
-                                    <div class="d-inline ml-3">
-                                        <a class="mx-1" href="{{route('post.edit', $post->slug)}}">{{__('Edit')}}</a>
 
+                                    <div class="d-inline ml-3">
+                                        @can('edit-post', $post)
+                                        <a class="mx-1" href="{{route('post.edit', $post->slug)}}">{{__('Edit')}}</a>
+                                        @endcan
+
+                                        @can('delete-post', $post)
                                         <form class="d-inline" action="{{route('post.destroy', $post->slug)}}" method="post">
                                             @csrf
                                             @method('DELETE')
@@ -61,8 +69,9 @@
                                                 {{ __('Delete') }}
                                             </button>
                                         </form>
+                                        @endcan
                                     </div>
-                                    @endcan
+
                                 </div>
                                 <h2 class="card-title h4">{{$post->title}}</h2>
                                 <p class="card-text">{{Str::limit($post->content, 50)}}</p>

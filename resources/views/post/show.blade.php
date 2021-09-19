@@ -11,20 +11,22 @@
                         <h1 class="fw-bolder mb-1">{{$post->title}}</h1>
                         <!-- Post meta content-->
                         <div class="text-muted fst-italic mb-2">Posted {{$post->created_at->diffForHumans()}} by {{$post->author->name}}
-                            @can('manage-post', $post)
+
                             <span class="ml-3">
+                                @can('edit-post', $post)
                                 <a class="mx-1" href="{{route('post.edit', $post->slug)}}">{{__('Edit')}}</a>
+                                @endcan
+
+                                @can('delete-post', $post)
                                 <form class="d-inline" action="{{route('post.destroy', $post->slug)}}" method="post">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-link text-danger py-0"
-                                            style="transform:translate(0, -3px)"
+                                    <input type="submit" class="btn btn-link text-danger" style="margin-top: -5px" value="{{ __('Delete') }}"
                                             onclick="return confirm('Are you sure?')">
-                                        {{ __('Delete') }}
-                                    </button>
                                 </form>
+                                @endcan
                             </span>
-                            @endcan
+
                         </div>
                         <!-- Post categories-->
                         @foreach($postCategories as $category)
@@ -42,7 +44,32 @@
 
                 </article>
                 <!-- Comments section-->
+
+
+
                 <section class="mb-5">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <!-- Comment form-->
+                            @if(\Auth::check())
+                            <form class="mb-4" action="{{route('post.comment.store', $post->slug)}}" method="post">
+                                @csrf
+                                <textarea name="comment" class="form-control" rows="3" placeholder="Join the discussion and leave a comment!"></textarea>
+                                <div class="text-right my-2">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
+                                </div>
+
+                            </form>
+                            @endif
+
+                            @include('comment._comments', ['comments' => $post->comments, 'post_slug' => $post->slug])
+
+                        </div>
+                    </div>
+                </section>
+
+
+                {{--<section class="mb-5">
                     <div class="card bg-light">
                         <div class="card-body">
                             <!-- Comment form-->
@@ -82,7 +109,7 @@
                             </div>
                         </div>
                     </div>
-                </section>
+                </section>--}}
             </div>
             <!-- Side widgets-->
             <div class="col-lg-4">
