@@ -38,17 +38,20 @@
                     <figure class="mb-4"><img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..." /></figure>
                     <!-- Post content-->
                     <section class="mb-5">
-                        <p>{!! nl2br($post->content) !!}</p>
+                        <p>{!! $post->content !!}</p>
                     </section>
 
 
                 </article>
                 <!-- Comments section-->
-
-
-
+                @if($errors)
+                    <h5 class="text-danger">{{ $errors->comment->first('comment') }}</h5>
+                @endif
                 <section class="mb-5">
                     <div class="card bg-light">
+                        <div class="card-header">
+                            <h6>Comments</h6>
+                        </div>
                         <div class="card-body">
                             <!-- Comment form-->
                             @if(\Auth::check())

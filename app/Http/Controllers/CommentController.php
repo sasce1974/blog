@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Comment;
 use App\Post;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -37,6 +38,13 @@ class CommentController extends Controller
      */
     public function store(Request $request, Post $post)
     {
+        $validator = Validator::make($request->all(), ['comment' => 'required|string|max:1000']);
+
+        if ($validator->fails()) {
+
+            return back()->withErrors($validator, 'comment');
+        }
+
         $comment = new Comment();
 
         $comment->comment = $request->comment;
@@ -51,6 +59,14 @@ class CommentController extends Controller
 
 
     public function storeReply(Request $request, Post $post){
+
+        $validator = Validator::make($request->all(),
+            ['comment' => 'required|string|max:1000']);
+
+        if ($validator->fails()) {
+
+            return back()->withErrors($validator, 'comment');
+        }
 
         $reply = new Comment();
 

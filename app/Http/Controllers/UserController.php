@@ -73,7 +73,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        \Gate::authorize('manage-profile', $user);
+        \Gate::authorize('view-profile', $user);
 
         return view('user.show', compact('user'));
     }

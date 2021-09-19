@@ -2,6 +2,9 @@
 @section('content')
     <div class="">
         <div class="card w-50 mx-auto">
+            <div class="card-header">
+                User Profile
+            </div>
             <div class="mb-3 mx-auto">
                 @if($user->photo())
                     <img class="rounded-circle" height="150" width="150" src="{{ $user->photo(150) }}" alt="User photo">
@@ -14,6 +17,7 @@
                 <h4 class="mb-0">Role: {{$user->role ? $user->role->name : ""}}</h4>
                 <h4 class="mb-0">Email: {{ $user->email }}</h4>
                 <h4 class="mb-0">Signed up: {{ $user->created_at->diffForHumans() }}</h4>
+                <p><a href="{{ route('password.request') }}"> {{__('Request account password change')}} </a></p>
 
                 @can('manage-profile', $user)
                     <a href="{{route('user.edit', $user->id)}}" class="btn btn-outline-secondary">Edit Profile</a>

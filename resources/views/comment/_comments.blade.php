@@ -32,7 +32,9 @@
         <form class="my-2" method="post" action="{{ route('comment.reply', $post_slug) }}">
             @csrf
             <div class="form-group mb-0">
-                <input type="text" name="comment" class="form-control form-control-sm" placeholder="Add reply" />
+                <input type="text" name="comment"
+                       class="form-control form-control-sm"
+                       placeholder="Add reply">
                 <input type="hidden" name="comment_id" value="{{ $comment->id }}" />
             </div>
             <div class="form-group pt-0 text-right">

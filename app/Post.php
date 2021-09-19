@@ -42,4 +42,13 @@ class Post extends Model
     public function isApproved(){
         return $this->approved === 1;
     }
+
+    public function setContentAttribute($content){
+        $allowed_tags = ["<h1>", "<h2>", "<p>", "<b>", "<h3>", "<h4>", "<h5>", "<h6>", "<ul>", "<ol>", "<li>"];
+        $this->attributes['content'] = strip_tags($content, $allowed_tags);
+    }
+
+    public function getContentAttribute($content){
+        return nl2br($content);
+    }
 }
