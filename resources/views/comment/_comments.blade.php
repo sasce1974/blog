@@ -3,7 +3,9 @@
 @foreach($comments as $comment)
 <div class="d-flex mt-2">
     <!-- Parent comment-->
-    <div class="flex-shrink-0"><img class="rounded-circle" width="40px" height="40px" src="https://dummyimage.com/40x40/ced4da/6c757d.jpg" alt="..." /></div>
+    <div class="flex-shrink-0">
+        <img class="rounded-circle" width="40px" height="40px" src="{{$comment->user->image(40)}}" alt="{{$comment->user->imageAlt}}" />
+    </div>
     <div class="ms-3">
         <div class="fw-bold">{{$comment->user->name}}</div>
         {{$comment->comment}}

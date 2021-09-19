@@ -31,9 +31,9 @@ class HomeController extends Controller
     {
         if(Auth::user()->isAdmin()){
 
-            $users = User::paginate(15);
+            $users = User::all();
 
-            $posts = Post::with('allComments')->paginate(15);
+            $posts = Post::with('allComments')->get(); //->paginate(5)->fragment('tabs-2');
 
             $categories = Category::all();
 

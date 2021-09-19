@@ -30,6 +30,7 @@ Route::get('/dashboard', 'HomeController@index')
 Route::resource('role', 'RoleController');
 
 // Post routes
+Route::get('/post/search', 'PostController@search')->name('post.search');
 Route::resource('post', 'PostController');
 Route::get('/post/category/{id}', 'PostController@indexByCategory')
     ->name('post.category');
@@ -48,6 +49,9 @@ Route::get('/user/{user}', 'UserController@show')->name('user.show');
 Route::get('/user/{user}/edit', 'UserController@edit')->name('user.edit');
 Route::put('user/{user}', 'UserController@update')->name('user.update');
 Route::delete('user/{user}', 'UserController@destroy')->name('user.destroy');
+Route::put('/user/{user}/photo', 'UserController@storeImage')
+    ->name('user.photo.store')
+    ->middleware('auth');
 
 //Category routes
 Route::post('/category/store', 'CategoryController@store')

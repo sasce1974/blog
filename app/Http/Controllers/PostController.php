@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\Post;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::where('approved', true)->get();
+        $posts = Post::where('approved', true)->orderByDesc('updated_at')->paginate(6);
 
         $categories = Category::all();
 
@@ -35,11 +36,29 @@ class PostController extends Controller
 
         $category = Category::findOrFail($id);
 
-        $posts = $category->posts;
+        $posts = $category->posts()->orderByDesc('updated_at')->paginate(6);
 
         $categories = Category::all();
 
         return view('blog', compact('posts', 'categories'));
+    }
+
+    public function search(Request $request){
+        $posts = Post::with('comments')->where('title', 'like', '%' . $request->search . '%')
+            ->orWhere('content', 'like', '%' . $request->search . '%')
+            ->orWhere(function ($query) use ($request){
+                $query->whereHas('comments', function ($q) use ($request){
+                    $q->where('comment', 'like', '%' . $request->search . '%');
+                });
+            })
+            ->orderByDesc('updated_at')
+            ->get();
+
+        $categories = Category::all();
+
+        return view('blog', compact('posts', 'categories'))
+            ->with('success', 'Found ' . $posts->count() . ' posts');
+
     }
 
 

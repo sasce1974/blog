@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Photo;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -120,9 +122,37 @@ class UserController extends Controller
 
         $user->save();
 
+        if($request->has('image')){
+
+            $request->validate([
+                'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
+            ]);
+
+            $path = Storage::disk('public')->putFile('user_photo', $request->file('image'));
+
+            $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+
+            $user->photo()->save($image);
+        }
+
         //return to the user show view
         return view('user.show', compact('user'));
     }
+
+    public function storeImage(User $user, Request $request){
+        $request->validate([
+            'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
+        ]);
+
+        $path = Storage::disk('public')->putFile('user_photo', $request->file('image'));
+
+        $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+
+        $user->photo()->save($image);
+
+        return back()->with('success', 'Photo uploaded');
+    }
+
 
     /**
      * Remove the specified resource from storage.

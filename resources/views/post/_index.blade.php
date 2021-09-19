@@ -81,3 +81,8 @@
     @endforelse
     </tbody>
 </table>
+@if(method_exists($posts, 'links'))
+    <div class="w-100 d-flex flex-row justify-content-center">
+        {{$posts->links()}}
+    </div>
+@endif

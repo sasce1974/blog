@@ -1,4 +1,3 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
 
 <p align="center">
 <a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
@@ -7,72 +6,65 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
 </p>
 
-## About Laravel
+##  Laravel - Blog Test Project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<h3>Installation</h2>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Before starting with this project, the following dependencies are REQUIRED:
+<ul>
+    <li>composer</li>
+    <li>node.js</li>
+    <li>server</li>
+    <li>PHP v.7.2.5 or later</li>
+    <li>Database (MySQL)</li>
+</ul>
+This project can be downloaded from the Github repository. If you are usin Git on your CLI, the pull request CAN be done with the following line:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+	git clone https://github.com/sasce1974/blog.git
 
-## Learning Laravel
+After the project is downloaded locally, additional program dependencies for the Laravel project MUST be installed. Please run into your CLI:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+	composer install
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+And:
 
-## Laravel Sponsors
+	npm install 
+	npm run dev
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Create a copy from the .env.example file from the root folder of the project and name it .env
+Can be done it in the CLI with the command:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
+	cp .env.example .env
 
-## Contributing
+The .env file (environment file) contains all the basic configurations for the program to run. 
+As the application is using "Verify email" functionality (All users after registering will receive 
+an email with verification link), Mail SHOULD be set up in the .env file for sending emails. For testing 
+convenience, 'verify' middleware is not been used.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Generate an App Encryption Key:
 
-## Code of Conduct
+	php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+This will create an app key string into the APP_KEY setting of the .env
 
-## Security Vulnerabilities
+Create empty database for the application.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Add the details for the database connection to the .env file <i>(Host, database name, username and password)</i>
 
-## License
+Migrate the database with the following code in your CLI:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+	php artisan migrate
+
+This WILL generate all the tables in the created database.
+
+Please set up your virtual host to the 'C:\{PathTo}\{MyProject}\Public' directory of the project as a base.
+
+To assign a admin role to the newly registered user in the beginning, please create one record into roles table with a name 'Admin' and
+insert the ID of the created role into the users table, column 'role_id'. 
+After that, admin users can assign roles to other users and to itself trough the profile interface.
+
+Create symlink to the storage space for the images:
+    
+    php artisan storage:link
+
+With this, the Blog application is ready to be used on the local machine.

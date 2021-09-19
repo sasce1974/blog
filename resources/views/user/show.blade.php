@@ -6,17 +6,29 @@
                 User Profile
             </div>
             <div class="mb-3 mx-auto">
-                @if($user->photo())
-                    <img class="rounded-circle" height="150" width="150" src="{{ $user->photo(150) }}" alt="User photo">
+                @if($user->photo()->count() > 0)
+                    <img class="rounded-circle" height="150" width="150" src="{{asset($user->image(150)) }}" alt="{{ $user->photo->alt }}">
+                @else
+                    <form action="{{ route('user.photo.store', $user->id) }}" method="post"
+                          enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="MAX_FILE_SIZE" value="2100000" />
+                        <input type="file" class="form-control-file" name="image"
+                               accept="image/*" title="Upload your photo.">
+                        <input type="text" name="alt" class="form-control form-control-sm"
+                               placeholder="Short description">
+                        <button class="btn btn-outline-success btn-sm">Save</button>
+                    </form>
                 @endif
             </div>
-            <div class="card-body text-center mb-4 pt-3">
+            <div class="card-body mb-4 pt-3">
 
 
-                <h4 class="mb-0">Name: {{ $user->name }}</h4>
-                <h4 class="mb-0">Role: {{$user->role ? $user->role->name : ""}}</h4>
-                <h4 class="mb-0">Email: {{ $user->email }}</h4>
-                <h4 class="mb-0">Signed up: {{ $user->created_at->diffForHumans() }}</h4>
+                <h6 class="mb-0">Name: {{ $user->name }}</h6>
+                <h6 class="mb-0">Role: {{$user->role ? $user->role->name : ""}}</h6>
+                <h6 class="mb-0">Email: {{ $user->email }}</h6>
+                <h6 class="mb-0">Signed up: {{ $user->created_at->diffForHumans() }}</h6>
                 <p><a href="{{ route('password.request') }}"> {{__('Request account password change')}} </a></p>
 
                 @can('manage-profile', $user)

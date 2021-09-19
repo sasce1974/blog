@@ -4,12 +4,12 @@
         <div class="col-lg-4">
             <div class="form-container text-center mb-4 pt-3">
 {{--                @if($user->has('photo'))--}}
-                @if($user->photo())
+{{--                @if($user->photo()->count() > 0)--}}
                 <div class="mb-3 mx-auto">
                     {{--                    <img class="rounded-circle" height="150" src="{{ $user->avatar(100) }}" alt="User photo">--}}
-                    <img class="rounded-circle" height="150" width="150" src="{{ asset($user->photo(150)) }}" alt="User photo">
+                    <img class="rounded-circle" height="150" width="150" src="{{ asset($user->image(150)) }}" alt="{{$user->imageAlt}}">
                 </div>
-                @endif
+{{--                @endif--}}
                 <h4 class="mb-0">{{ $user->name }}</h4>
                 <span class="text-muted d-block mb-2">Role: {{$user->role ? $user->role->name : "Unspecified"}}</span>
                 <div class="progress-wrapper text-center">

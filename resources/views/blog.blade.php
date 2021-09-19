@@ -44,7 +44,7 @@
 
                         </div>
                         <h2 class="card-title">{{$featured->title}}</h2>
-                        <p class="card-text">{{\Illuminate\Support\Str::limit($featured->content, 200)}}</p>
+                        <p class="card-text">{!! \Illuminate\Support\Str::limit($featured->content, 200) !!}</p>
                         <a class="btn btn-primary" href="{{route('post.show', $featured->slug)}}">{{__('Read more')}} →</a>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                 <div class="d-flex align-content-between flex-wrap" style="gap: 15px">
 
                 @foreach($posts as $post)
-                        <div class="card mb-4" style="width: 33%">
+                        <div class="card mb-4" style="width: 31%; min-width: 150px">
                             <a href="{{route('post.show', $post->slug)}}"><img class="card-img-top" src="https://dummyimage.com/700x350/dee2e6/6c757d.jpg" alt="..." /></a>
                             <div class="card-body">
                                 <div class="small text-muted">{{$post->created_at->format('M d Y')}}
@@ -68,7 +68,6 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-link text-danger py-0"
-                                                    style="transform:translate(0, -3px)"
                                                     onclick="return confirm('Are you sure?')">
                                                 {{ __('Delete') }}
                                             </button>
@@ -78,7 +77,7 @@
 
                                 </div>
                                 <h2 class="card-title h4">{{$post->title}}</h2>
-                                <p class="card-text">{{Str::limit($post->content, 50)}}</p>
+                                <p class="card-text">{{ Str::limit($post->content, 50) }}</p>
                                 <a class="btn btn-primary" href="{{route('post.show', $post->slug)}}">{{__('Read more')}} →</a>
                             </div>
                         </div>
@@ -105,10 +104,13 @@
                 <div class="card mb-4">
                     <div class="card-header">{{ __('Search') }}</div>
                     <div class="card-body">
-                        <div class="input-group">
-                            <input class="form-control" type="text" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
-                            <button class="btn btn-primary" id="button-search" type="button">{{ __('Go!') }}</button>
-                        </div>
+                        <form action="{{ route('post.search') }}" method="get">
+                            <div class="input-group">
+                                <input class="form-control" type="text" name="search" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
+                                <button class="btn btn-primary" id="button-search" type="submit">{{ __('Go!') }}</button>
+                            </div>
+                        </form>
+
                     </div>
                 </div>
                 <!-- Categories widget-->
