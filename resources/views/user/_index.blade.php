@@ -5,6 +5,9 @@
             <thead class='thead-dark py-0'>
             <tr>
 {{--Create New User --}}
+                <th colspan="10" class="bg-dark text-light mb-0 pl-3 py-0">{{ __('Create user form') }}</th>
+            </tr>
+            <tr>
                     <form action="{{route('user.store')}}" method="post">
                         @csrf
                         <th colspan="2">
@@ -75,7 +78,9 @@
 
             </tr>
 {{--            End of Create New User Form--}}
-
+            <tr>
+                <th colspan="10" class="bg-dark text-light mb-0 pl-3 py-0">{{ __('List all users') }}</th>
+            </tr>
             <tr>
                 <th class="px-0 position-relative"><div>Photo</div></th>
                 <th class="px-0 position-relative"><div>ID</div></th>

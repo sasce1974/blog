@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Photo;
-use Gate;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Http\Response;
@@ -15,32 +15,16 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
+
+    public function __construct()
     {
-        //
-        Gate::authorize('admin-management');
+        $this->middleware('auth');
 
-        $users = User::paginate(10);
-
-        return view('user.index', compact('users'));
+        $this->middleware('admin')->only(['store', 'destroy']);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-        Gate::authorize('admin-management');
-        return "User creation form";
-    }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -50,7 +34,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        Gate::authorize('admin-management');
+        \Gate::authorize('admin-management');
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -59,7 +43,7 @@ class UserController extends Controller
             'role_id' => ['numeric', 'nullable']
         ]);
 
-        //return back to index instead...
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -71,6 +55,8 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'User created');
     }
 
+
+
     /**
      * Display the specified resource.
      *
@@ -79,10 +65,13 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        Gate::authorize('view-profile', $user);
+        \Gate::authorize('view-profile', $user);
 
         return view('user.show', compact('user'));
     }
+
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -108,7 +97,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
 
-        Gate::authorize('manage-profile', $user);
+        \Gate::authorize('manage-profile', $user);
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -117,6 +106,7 @@ class UserController extends Controller
         ]);
 
         $user->name = $request->name;
+
         if($request->filled('email') && $request->email !== $user->email){
 
             $user->email = $request->email;
@@ -155,6 +145,13 @@ class UserController extends Controller
         return view('user.show', compact('user'));
     }
 
+    /**
+     * Upload/Update only photo from show profile view
+     *
+     * @param User $user
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function uploadPhoto(User $user, Request $request){
 
         \Gate::authorize('manage-profile', $user);
@@ -169,6 +166,13 @@ class UserController extends Controller
     }
 
 
+    /**
+     * Handles saving image on disk and database
+     *
+     * @param User $user
+     * @param Request $request
+     * @return bool
+     */
     private function storeImage(User $user, Request $request){
 
         \Gate::authorize('manage-profile', $user);
@@ -177,12 +181,16 @@ class UserController extends Controller
             'image' => 'required|image|max:2048|mimes:jpeg,bmp,png,jpg',
             'alt' => 'nullable|string|max:50'
         ]);
+
         try {
             $extension = $request->file('image')->extension();
 
             $path = Storage::disk('public')
                 ->putFileAs('user_photo', $request->file('image'),
                     $user->id . "." . $extension);
+
+            //Todo image file name can be random string and later to handle replace image
+            // when uploading new one...
 
             if(!$path) throw new \Exception("Image not uploaded on disk");
 
@@ -201,13 +209,28 @@ class UserController extends Controller
     }
 
 
+    /**
+     * Delete user image
+     *
+     * @param User $user
+     * @return RedirectResponse
+     */
     public function deletePhoto(User $user){
 
         \Gate::authorize('manage-profile', $user);
 
-        Storage::disk('public')->delete($user->photo->path);
+        try {
 
-        $user->photo->delete();
+            Storage::disk('public')->delete($user->photo->path);
+
+            $user->photo->delete();
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return back()->with('error', 'Photo not deleted');
+        }
 
         return back()->with('success', 'Photo deleted');
     }
@@ -215,29 +238,48 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return Response
+     * @param User $user
+     * @return RedirectResponse
+     * @throws \Exception
      */
     public function destroy(User $user)
     {
-        Gate::authorize('manage-profile', $user);
+        \Gate::authorize('manage-profile', $user);
 
-        foreach ($user->posts() as $post){
-            //$post->comments()->delete();
-            $post->categories()->sync([]);
-            $post->delete();
+        //Delete all user posts and comments, detach posts from categories
+        // then delete the user
+        try {
+
+            foreach ($user->posts as $post) {
+
+                $post->categories()->detach();
+
+                $post->delete();
+            }
+
+            foreach ($user->comments as $comment) {
+
+                $comment->delete();
+            }
+
+            $user->delete();
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return redirect()->back()->with('error', 'User not deleted');
+
         }
-
-        $user->delete();
 
         //if user is not the admin, logout...
         if(Auth::check() && !Auth::user()->isAdmin()) {
             Auth::logout();
+
             return redirect()->route('post')->with('success', 'User deleted');
         }
 
         return redirect()->back()->with('success', 'User deleted');
 
-        //return redirect()->route('post')->with('success', 'User deleted');
     }
 }

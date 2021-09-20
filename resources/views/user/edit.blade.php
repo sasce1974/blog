@@ -10,7 +10,7 @@
                 </div>
                 <h4 class="mb-0">{{ $user->name }}</h4>
                 <span class="text-muted d-block mb-2">
-                    Role: {{$user->role ? $user->role->name : "Unspecified"}}
+                    {{__('Role') }}: {{$user->role ? $user->role->name : "Unspecified"}}
                 </span>
                 <div class="progress-wrapper text-center">
                 </div>
@@ -28,7 +28,7 @@
                                 <div class="form-group col-lg-6">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text" id="basic1">E-mail</span>
+                                            <span class="input-group-text" id="basic1">{{ __('E-mail') }}</span>
                                         </div>
                                         <input name="email" class="form-control
                                             {{$errors->has('email') ? 'is-invalid' : ''}}"
@@ -45,7 +45,7 @@
                                 </div>
 
                                 <div class="form-group text-left col-lg-6 mt-1">
-                                    <a href="{{route('password.request')}}">Change your password</a>
+                                    <a href="{{route('password.request')}}">{{ __('Change your password') }}</a>
                                 </div>
 
                             </div>
@@ -53,7 +53,7 @@
                                 <div class="form-group col-lg-6">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text" id="basic3">Name</span>
+                                            <span class="input-group-text" id="basic3">{{ __('Name') }}</span>
                                         </div>
                                         <input class="form-control {{$errors->has('name') ? 'is-invalid' : ''}}"
                                                aria-describedby="basic3" type="text" name="name"
@@ -73,7 +73,7 @@
                                     <div class="form-group mx-1">
                                         <label>
                                             <select name='role_id' class='form-control d-inline'>
-                                                <option>Please choose user role</option>
+                                                <option>{{ __('Please choose user role') }}</option>
                                                 @foreach(App\Role::all() as $role)
                                                     <option value="{{$role->id}}"
                                                         {{$user->role ? ($role->id === $user->role->id ? 'selected' : '') : null}}>
@@ -98,7 +98,7 @@
                                                title="Upload your photo."/>
                                         <i class="fa fa-arrow-up"></i>
                                     </div>
-                                    <span>Upload image</span>
+                                    <span>{{ __('Upload image') }}</span>
                                 </div>
                                 @if($errors->has('image'))
                                     <div class="text-danger">
@@ -109,18 +109,21 @@
                             </div>
 
                             <button type="submit" class="btn btn-success float-left">
-                                Update Profile
+                                {{ __('Update Profile') }}
                             </button>
                         </form>
+                        @can('admin-management')
                         <form class="float-right mr-3" action="{{route('user.destroy', $user->id)}}"
                               method="post">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger"
                                     onclick="return confirm('Are you sure?')"
-                                    title="Delete my account">Delete
+                                    title="Delete my account">
+                                {{ __('Delete') }}
                             </button>
                         </form>
+                        @endcan
                     </div>
                 </div>
             </div>
