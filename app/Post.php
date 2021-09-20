@@ -41,8 +41,26 @@ class Post extends Model
     }
 
     public function photo(){
-        return $this->morphOne(Photo::class, 'photoable');
+        return $this->morphOne(Photo::class, 'photoable')
+            ->where('approved', true);
     }
+
+    public function image($width = null, $height = null){
+
+        return $this->photo ? '/storage/' . $this->photo->path : $this->randomImage($width, $height);
+    }
+
+    public function getImageAltAttribute(){
+        return $this->photo ? $this->photo->alt : "Post image";
+    }
+
+    private function randomImage($width, $height){
+        if($width != null && $height != null){
+            return "https://source.unsplash.com/random/" . $width . 'x' . $height;
+        }
+        return "https://source.unsplash.com/random";
+    }
+
 
     /**
      * Get the route key for the model.
@@ -60,12 +78,12 @@ class Post extends Model
     }
 
     public function setContentAttribute($content){
-        //$allowed_tags = ["<h1>", "<h2>", "<p>", "<b>", "<h3>", "<h4>", "<h5>", "<h6>", "<ul>", "<ol>", "<li>"];
+
         $this->attributes['content'] = strip_tags($content, $this->allowed_tags);
     }
 
     public function getContentAttribute($content){
-        //$allowed_tags = ["<h1>", "<h2>", "<p>", "<b>", "<h3>", "<h4>", "<h5>", "<h6>", "<ul>", "<ol>", "<li>", ];
+
         return nl2br(strip_tags($content, $this->allowed_tags));
     }
 }

@@ -20,7 +20,10 @@
                 <!-- Featured blog post-->
                 @if(isset($featured))
                 <div class="card mb-4">
-                    <a href="{{route('post.show', $featured->slug)}}"><img class="card-img-top" src="https://dummyimage.com/850x350/dee2e6/6c757d.jpg" alt="..." /></a>
+                    <a href="{{route('post.show', $featured->slug)}}">
+                        <div class="card-img-top w-100" style="background-image: url('{{$featured->image(850, 350)}}');background-repeat: no-repeat; background-size: cover;overflow: hidden;height: 350px"></div>
+{{--                        <img class="card-img-top" width="850" height="350" src="{{$featured->image(850, 350)}}" alt="{{$featured->imageAlt}}" />--}}
+                    </a>
                     <div class="card-body">
                         <div class="small text-muted">Created {{$featured->created_at->diffForHumans()}} by {{$featured->author->name}}
 
@@ -53,8 +56,10 @@
                 <div class="d-flex align-content-between flex-wrap" style="gap: 15px">
 
                 @foreach($posts as $post)
-                        <div class="card mb-4" style="width: 31%; min-width: 150px">
-                            <a href="{{route('post.show', $post->slug)}}"><img class="card-img-top" src="https://dummyimage.com/700x350/dee2e6/6c757d.jpg" alt="..." /></a>
+                        <div class="card mb-4" style="width: 31%; min-width: 200px">
+                            <a href="{{route('post.show', $post->slug)}}">
+                                <img class="card-img-top" src="{{$post->image(250, 150)}}" alt="{{$post->imageAlt}}" />
+                            </a>
                             <div class="card-body">
                                 <div class="small text-muted">{{$post->created_at->format('M d Y')}}
 
@@ -107,7 +112,7 @@
                         <form action="{{ route('post.search') }}" method="get">
                             <div class="input-group">
                                 <input class="form-control" type="text" name="search" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
-                                <button class="btn btn-primary" id="button-search" type="submit">{{ __('Go!') }}</button>
+                                <button class="btn btn-primary" id="button-search" type="submit">{{ __('Go') }}</button>
                             </div>
                         </form>
 

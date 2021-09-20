@@ -3,23 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Photo;
+use Gate;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
         //
-        \Gate::authorize('admin-management');
+        Gate::authorize('admin-management');
 
         $users = User::paginate(10);
 
@@ -29,24 +33,24 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
         //
-        \Gate::authorize('admin-management');
+        Gate::authorize('admin-management');
         return "User creation form";
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
-        \Gate::authorize('admin-management');
+        Gate::authorize('admin-management');
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -71,11 +75,11 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show(User $user)
     {
-        \Gate::authorize('view-profile', $user);
+        Gate::authorize('view-profile', $user);
 
         return view('user.show', compact('user'));
     }
@@ -83,12 +87,12 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param User $user
+     * @return Factory|View
      */
     public function edit(User $user)
     {
-        //
+
         \Gate::authorize('manage-profile', $user);
 
         return view('user.edit', compact('user'));
@@ -97,14 +101,14 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param User $user
+     * @return Factory|View
      */
     public function update(Request $request, User $user)
     {
-        //
-        \Gate::authorize('manage-profile', $user);
+
+        Gate::authorize('manage-profile', $user);
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -114,55 +118,109 @@ class UserController extends Controller
 
         $user->name = $request->name;
         if($request->filled('email') && $request->email !== $user->email){
+
             $user->email = $request->email;
         }
-        if($request->filled('role_id') && Auth::user()->isAdmin()){
+
+        if($request->filled('role_id') && $request->user()->isAdmin()){
+
             $user->role_id = $request->role_id;
         }
 
-        $user->save();
+        try {
+
+            $user->save();
+
+            session()->flash('success', 'Profile updated');
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            session()->flash('error', 'Profile not updated');
+        }
 
         if($request->has('image')){
 
-            $request->validate([
-                'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
-            ]);
+            if($this->storeImage($user, $request)){
 
-            $path = Storage::disk('public')->putFile('user_photo', $request->file('image'));
+                session()->flash('success', 'Photo uploaded');
+            }else{
 
-            $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+                session()->flash('error', 'Image not saved');
+            }
 
-            $user->photo()->save($image);
         }
 
-        //return to the user show view
         return view('user.show', compact('user'));
     }
 
-    public function storeImage(User $user, Request $request){
-        $request->validate([
-            'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
-        ]);
+    public function uploadPhoto(User $user, Request $request){
 
-        $path = Storage::disk('public')->putFile('user_photo', $request->file('image'));
+        \Gate::authorize('manage-profile', $user);
 
-        $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+        if($this->storeImage($user, $request)){
+            session()->flash('success', 'Photo uploaded');
+        }else{
+            session()->flash('error', 'Image not saved');
+        }
 
-        $user->photo()->save($image);
-
-        return back()->with('success', 'Photo uploaded');
+        return back();
     }
 
+
+    private function storeImage(User $user, Request $request){
+
+        \Gate::authorize('manage-profile', $user);
+
+        $request->validate([
+            'image' => 'required|image|max:2048|mimes:jpeg,bmp,png,jpg',
+            'alt' => 'nullable|string|max:50'
+        ]);
+        try {
+            $extension = $request->file('image')->extension();
+
+            $path = Storage::disk('public')
+                ->putFileAs('user_photo', $request->file('image'),
+                    $user->id . "." . $extension);
+
+            if(!$path) throw new \Exception("Image not uploaded on disk");
+
+            $image = new Photo(['path' => $path, 'alt' => $request->alt]);
+
+            $user->photo()->save($image);
+
+            return true;
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return false;
+        }
+    }
+
+
+    public function deletePhoto(User $user){
+
+        \Gate::authorize('manage-profile', $user);
+
+        Storage::disk('public')->delete($user->photo->path);
+
+        $user->photo->delete();
+
+        return back()->with('success', 'Photo deleted');
+    }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(User $user)
     {
-        \Gate::authorize('manage-profile', $user);
+        Gate::authorize('manage-profile', $user);
 
         foreach ($user->posts() as $post){
             //$post->comments()->delete();

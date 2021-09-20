@@ -35,10 +35,12 @@
                         @endforeach
                     </header>
                     <!-- Preview image figure-->
-                    <figure class="mb-4"><img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..." /></figure>
+                    <figure class="mb-4">
+                        <img class="img-fluid rounded w-100 h-auto" src="{{$post->image(850,350)}}" alt="{{$post->imageAlt}}" />
+                    </figure>
                     <!-- Post content-->
                     <section class="mb-5">
-                        <p>{!! $post->content !!}</p>
+                        {!! $post->content !!}
                     </section>
 
 
@@ -78,10 +80,12 @@
                 <div class="card mb-4">
                     <div class="card-header">Search</div>
                     <div class="card-body">
-                        <div class="input-group">
-                            <input class="form-control" type="text" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
-                            <button class="btn btn-primary" id="button-search" type="button">Go!</button>
-                        </div>
+                        <form action="{{ route('post.search') }}" method="get">
+                            <div class="input-group">
+                                <input class="form-control" name="search" type="text" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
+                                <button class="btn btn-primary" id="button-search" type="submit">{{ __('Go') }}</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 <!-- Categories widget-->

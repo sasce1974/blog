@@ -8,6 +8,14 @@
                 <div class="card mb-4 shadow-lg">
                     <div class="card-header">
                         Edit post
+                        @if($post->photo()->count() > 0)
+                            <img class="float-right rounded" width="250" height="auto" src="{{$post->image(250, 150)}}" alt="{{$post->imageAlt}}">
+                            <form class="text-right" action="{{route('post.photo.destroy', $post->slug)}}" method="post">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-link text-danger btn-sm" onclick="return confirm('Are you sure?')">Delete photo</button>
+                            </form>
+                        @endif
                     </div>
                     <div class="card-body">
                         <form action="{{route('post.update', $post->slug)}}" method="post" enctype="multipart/form-data">
@@ -50,6 +58,26 @@
                                         <div>{{$category->name}}</div>
                                     </div>
                                 @endforeach
+                            </div>
+                            <div class="row">
+                                @if($post->photo()->count() === 0)
+                                <div class="form-group col-md-6">
+                                    <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
+                                    <input type="file" id="image" class="form-control-file" name="image" accept="image/*"
+                                           title="Upload your photo."/>
+
+                                        @if($errors->has('image'))
+                                            <div class="invalid-feedback">
+                                                <strong>{{ $errors->first('image') }}</strong>
+                                            </div>
+                                        @endif
+                                    <label for="image">Post image</label>
+                                    <div class="text-danger" id="image_error"></div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" name="alt" class="form-control" placeholder="Image short description">
+                                </div>
+                                @endif
                             </div>
                             <div class="text-center mt-3 pt-3 border-top">
                                 <button type="submit" class="btn btn-primary">Update</button>

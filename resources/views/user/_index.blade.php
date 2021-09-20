@@ -50,7 +50,7 @@
                             @endif
                         </th>
 
-                        <th>
+                        <th colspan="2">
                             <select name="role_id" class="form-control {{$errors->has('role_id') ? 'is-invalid' : ''}}"
                                     title="Assign a role">
                                 <option>Assign a role</option>
@@ -77,6 +77,7 @@
 {{--            End of Create New User Form--}}
 
             <tr>
+                <th class="px-0 position-relative"><div>Photo</div></th>
                 <th class="px-0 position-relative"><div>ID</div></th>
                 <th class="px-0 position-relative"><div>Verified</div></th>
                 <th class="px-0 position-relative"><div>Name</div></th>
@@ -92,6 +93,7 @@
 
             @foreach($users as $user)
                 <tr>
+                    <td><img src="{{$user->image(40, 40)}}" width="40" height="40"></td>
                     <td><span class="col2">{{ $user->id }}</span></td>
                     <td><span class="col5">{{ $user->email_verified_at ? $user->email_verified_at->diffForHumans() : "NO" }}</span></td>
                     <td><span class="col3"><a href="{{route('user.show', $user->id)}}">{{ $user->name }}</a></span></td>

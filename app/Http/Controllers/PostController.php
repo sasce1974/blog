@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Photo;
 use App\Post;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
@@ -89,7 +91,7 @@ class PostController extends Controller
         ]);
 
         $slug = Str::of($request->title)->slug('_');
-//dd($slug);
+
         $post = Auth::user()->posts()->create([
             'title' => $request->input('title'),
             'content' => $request->input('content'),
@@ -97,6 +99,21 @@ class PostController extends Controller
         ]);
 
         $post->categories()->sync($request->category_id);
+
+        if($request->has('image')){
+
+            $this->storeImage($post, $request);
+
+            /*$request->validate([
+                'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
+            ]);
+
+            $path = Storage::disk('public')->putFile('post_photo', $request->file('image'));
+
+            $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+
+            $post->photo()->save($image);*/
+        }
 
         return redirect()->route('post.show', $post->slug)->with('success', 'Post created');
     }
@@ -163,8 +180,44 @@ class PostController extends Controller
 
         $post->categories()->sync($request->category_id);
 
+        if($request->has('image')){
+
+            $this->storeImage($post, $request);
+
+
+            /*$request->validate([
+                'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
+            ]);
+
+            $path = Storage::disk('public')->putFile('post_photo', $request->file('image'));
+
+            $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+
+            $post->photo()->save($image);*/
+        }
+
         return redirect()->route('post.show', $post->slug)->with('success', 'Post updated');
     }
+
+    private function storeImage(Post $post, Request $request){
+
+        \Gate::authorize('edit-post', $post);
+
+        $request->validate([
+            'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
+        ]);
+
+        $extension = $request->file('image')->extension();
+
+        $path = Storage::disk('public')
+            ->putFileAs('post_photo', $request->file('image'),
+                $post->id . "." . $extension);
+
+        $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+
+        $post->photo()->save($image);
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -181,6 +234,18 @@ class PostController extends Controller
         $post->delete();
 
         return redirect()->route('post')->with('success', 'Post deleted');
+    }
+
+
+    public function deletePhoto(Post $post){
+
+        \Gate::authorize('edit-post', $post);
+
+        Storage::disk('public')->delete($post->photo->path);
+
+        $post->photo->delete();
+
+        return back()->with('success', 'Photo deleted');
     }
 
 

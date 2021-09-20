@@ -44,6 +44,27 @@
                                     </div>
                                 @endforeach
                             </div>
+
+                            <div class="row">
+
+                                <div class="form-group col-md-6">
+                                    <input type="hidden" name="MAX_FILE_SIZE" value="2100000" />
+                                    <input type="file" id="image" class="form-control-file" name="image" accept="image/*"
+                                           title="Upload post photo."/>
+
+                                    @if($errors->has('image'))
+                                        <div class="invalid-feedback">
+                                            <strong>{{ $errors->first('image') }}</strong>
+                                        </div>
+                                    @endif
+                                    <label for="image">Post image</label>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" name="alt" class="form-control" placeholder="Image short description">
+                                </div>
+
+                            </div>
+
                             <div class="text-center mt-3 pt-3 border-top">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </div>

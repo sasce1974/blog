@@ -40,6 +40,9 @@ Route::patch('/post/{id}/approve', 'PostController@approve')
 Route::patch('/post/{id}/disapprove', 'PostController@disapprove')
     ->name('post.disapprove')
     ->middleware(['auth', 'admin']);
+Route::delete('/post/{post}/photo', 'PostController@deletePhoto')
+    ->name('post.photo.destroy')
+    ->middleware('auth');
 
 
 //User routes
@@ -49,8 +52,11 @@ Route::get('/user/{user}', 'UserController@show')->name('user.show');
 Route::get('/user/{user}/edit', 'UserController@edit')->name('user.edit');
 Route::put('user/{user}', 'UserController@update')->name('user.update');
 Route::delete('user/{user}', 'UserController@destroy')->name('user.destroy');
-Route::put('/user/{user}/photo', 'UserController@storeImage')
+Route::put('/user/{user}/photo', 'UserController@uploadPhoto')
     ->name('user.photo.store')
+    ->middleware('auth');
+Route::delete('/user/{user}/photo', 'UserController@deletePhoto')
+    ->name('user.photo.destroy')
     ->middleware('auth');
 
 //Category routes

@@ -50,27 +50,23 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function photo(){
-        return $this->morphOne(Photo::class, 'photoable');
+        return $this->morphOne(Photo::class, 'photoable')
+            ->where('approved', true);
     }
 
     public function avatar($size = null){
-        $email = $this->email;
-        $default = "https://www.somewhere.com/homestar.jpg";
 
         if($size === null) $size = 32;
 
-        //return "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
-
-        return "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?s=" . $size;
-
+        return "https://www.gravatar.com/avatar/" . md5( strtolower( $this->email ) ) . "?s=" . $size;
     }
 
     public function image($size = null){
 
-        return $this->photo()->first() ? '/storage/' . $this->photo->first()->path : $this->avatar($size);
+        return $this->photo ? '/storage/' . $this->photo->path : $this->avatar($size);
     }
 
     public function getImageAltAttribute(){
-        return $this->photo()->first() ? $this->photo()->first()->alt : "User photo";
+        return $this->photo ? $this->photo->alt : "User photo";
     }
 }
