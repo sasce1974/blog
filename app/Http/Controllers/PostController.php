@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -51,7 +52,7 @@ class PostController extends Controller
 
         $category = Category::findOrFail($id);
 
-        $posts = $category->posts()->orderByDesc('updated_at')->paginate(6);
+        $posts = $category->posts()->orderByDesc('updated_at')->paginate(9);
 
         $categories = Category::all();
 
@@ -83,7 +84,7 @@ class PostController extends Controller
 
             ->orderByDesc('updated_at')
 
-            ->get();
+            ->paginate(9);
 
         $categories = Category::all();
 
@@ -118,7 +119,8 @@ class PostController extends Controller
         $request->validate([
             'title'=>'required|string|max:255',
             'content'=> 'required|string|max:2000|min:50',
-            'category_id'=>'array|nullable'
+            'category_id'=>'array|nullable',
+            'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
         ]);
 
         $slug = Str::of($request->title)->slug('_');
@@ -257,10 +259,6 @@ class PostController extends Controller
 
         \Gate::authorize('edit-post', $post);
 
-        $request->validate([
-            'image'=>'required|image|max:2048|mimes:jpeg,bmp,png,jpg'
-        ]);
-
         try {
 
             $extension = $request->file('image')->extension();
@@ -269,7 +267,7 @@ class PostController extends Controller
                 ->putFileAs('post_photo', $request->file('image'),
                     $post->id . "." . $extension);
 
-            if (!$path) throw new \Exception("Image not uploaded");
+            if (!$path) return false;
 
             $image = new Photo(['path' => $path, 'alt' => $request->alt]);
 

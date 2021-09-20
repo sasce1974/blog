@@ -57,11 +57,21 @@ Migrate the database with the following code in your CLI:
 
 This WILL generate all the tables in the created database.
 
-Please set up your virtual host to the 'C:\{PathTo}\{MyProject}\Public' directory of the project as a base.
+The artisan command for running the seeder is implemented into
+the 'photos' table migration file to be executed along after the 
+table migration.
 
-To assign a admin role to the newly registered user in the beginning, please create one record into roles table with a name 'Admin' and
-insert the ID of the created role into the users table, column 'role_id'. 
-After that, admin users can assign roles to other users and to itself trough the profile interface.
+#####Database will be automatically seeded with data.
+#####There will be one admin user created 
+with username: <b>admin@email.com</b> and password: 
+<b>password</b>. 
+Please use this account to login as an admin user
+into the application. All other generated users for
+testing convenience will have the same password 
+("password"); 
+
+
+Admin users can assign roles to other users and to itself trough the profile interface.
 
 Create symlink to the storage space for the images:
     

@@ -76,7 +76,7 @@
                 @endif
 
                 <!-- Nested row for non-featured blog posts-->
-                <div class="d-flex justify-content-between flex-wrap" style="gap: 15px">
+                <div class="d-flex flex-wrap" style="gap: 15px">
 
                 @foreach($posts as $post)
                         <div class="card mb-4 border-0 shadow" style="width: 30%; min-width: 180px">

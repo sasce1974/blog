@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 
 class CreatePhotosTable extends Migration
@@ -22,6 +23,14 @@ class CreatePhotosTable extends Migration
             $table->string('photoable_type');
             $table->timestamps();
         });
+
+
+        // Call seeder
+        Artisan::call('db:seed', [
+            '--verbose' => 3,
+            '--force' => true
+        ]);
+        dd(Artisan::output());
     }
 
     /**

@@ -72,6 +72,8 @@
                                 </div>
 
                             </form>
+                            @else
+                                <h6 class="text-center">Please <a href="{{route('login')}}">login</a> to join a discussion</h6>
                             @endif
 
                             @include('comment._comments', ['comments' => $post->comments, 'post_slug' => $post->slug])

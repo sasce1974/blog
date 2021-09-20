@@ -15,7 +15,7 @@
                                        id="title" type="text" name="title" value="{{old('title')}}"
                                        title="Some memorable title here">
                                 @if($errors->has('title'))
-                                    <div class="invalid-feedback">
+                                    <div class="text-danger">
                                         <strong>{{ $errors->first('title') }}</strong>
                                     </div>
                                 @endif
@@ -26,7 +26,7 @@
                                 <textarea class="form-control {{$errors->has('content') ? 'is-invalid' : ''}}"
                                     rows="4" id="content"name="content" title="Max 2000 characters">{{ old('content') }}</textarea>
                                 @if($errors->has('content'))
-                                    <div class="invalid-feedback">
+                                    <div class="text-danger">
                                         <strong>{{ $errors->first('content') }}</strong>
                                     </div>
                                 @endif
@@ -53,11 +53,12 @@
                                            title="Upload post photo."/>
 
                                     @if($errors->has('image'))
-                                        <div class="invalid-feedback">
+                                        <div class="text-danger">
                                             <strong>{{ $errors->first('image') }}</strong>
                                         </div>
                                     @endif
                                     <label for="image">Post image</label>
+                                    <div class="text-danger" id="image_error"></div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <input type="text" name="alt" class="form-control" placeholder="Image short description">
