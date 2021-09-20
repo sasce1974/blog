@@ -30,7 +30,7 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return Response
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -43,25 +43,30 @@ class UserController extends Controller
             'role_id' => ['numeric', 'nullable']
         ]);
 
+        try {
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'email_verified_at' => now(),
+                'role_id' => $request->role_id
+            ]);
+        }catch (\Throwable $e){
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'email_verified_at'=> now(),
-            'role_id' => $request->role_id
-        ]);
+            report($e);
+
+            return redirect()->back()->with('error', 'User not created');
+        }
 
         return redirect()->back()->with('success', 'User created');
     }
 
 
-
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return Response
+     * @param User $user
+     * @return Factory|View
      */
     public function show(User $user)
     {
@@ -192,7 +197,7 @@ class UserController extends Controller
             //Todo image file name can be random string and later to handle replace image
             // when uploading new one...
 
-            if(!$path) throw new \Exception("Image not uploaded on disk");
+            if(!$path) throw new \Exception("Image not uploaded");
 
             $image = new Photo(['path' => $path, 'alt' => $request->alt]);
 

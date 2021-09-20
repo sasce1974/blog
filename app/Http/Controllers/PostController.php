@@ -5,19 +5,25 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\Photo;
 use App\Post;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * Main page, open to view by all
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -27,6 +33,7 @@ class PostController extends Controller
 
         $featured = null;
 
+        //get one random post
         if($posts->count() > 0)
             $featured = $posts->random(1)->first();
 
@@ -34,6 +41,12 @@ class PostController extends Controller
     }
 
 
+    /**
+     * Get posts by specific category
+     *
+     * @param $id
+     * @return Factory|View
+     */
     public function indexByCategory($id){
 
         $category = Category::findOrFail($id);
@@ -45,15 +58,31 @@ class PostController extends Controller
         return view('blog', compact('posts', 'categories'));
     }
 
+
+    /**
+     * List posts according given search value, search in posts and comments
+     *
+     * @param Request $request
+     * @return Factory|View
+     */
     public function search(Request $request){
-        $posts = Post::with('comments')->where('title', 'like', '%' . $request->search . '%')
+
+        $posts = Post::with('comments')
+
+            ->where('title', 'like', '%' . $request->search . '%')
+
             ->orWhere('content', 'like', '%' . $request->search . '%')
+
             ->orWhere(function ($query) use ($request){
+
                 $query->whereHas('comments', function ($q) use ($request){
                     $q->where('comment', 'like', '%' . $request->search . '%');
                 });
+
             })
+
             ->orderByDesc('updated_at')
+
             ->get();
 
         $categories = Category::all();
@@ -67,7 +96,7 @@ class PostController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function create()
     {
@@ -76,14 +105,16 @@ class PostController extends Controller
 
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
+
         $request->validate([
             'title'=>'required|string|max:255',
             'content'=> 'required|string|max:2000|min:50',
@@ -92,40 +123,47 @@ class PostController extends Controller
 
         $slug = Str::of($request->title)->slug('_');
 
-        $post = Auth::user()->posts()->create([
-            'title' => $request->input('title'),
-            'content' => $request->input('content'),
-            'slug' => $slug
-        ]);
+        try {
+
+            $post = Auth::user()->posts()->create([
+                'title' => $request->input('title'),
+                'content' => $request->input('content'),
+                'slug' => $slug
+            ]);
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return redirect()->route('post.create')
+                ->withInput()
+                ->with('error', 'Post not created');
+        }
 
         $post->categories()->sync($request->category_id);
 
         if($request->has('image')){
 
-            $this->storeImage($post, $request);
+            if(!$this->storeImage($post, $request)){
 
-            /*$request->validate([
-                'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
-            ]);
-
-            $path = Storage::disk('public')->putFile('post_photo', $request->file('image'));
-
-            $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
-
-            $post->photo()->save($image);*/
+                session()->flash('error', 'Image not saved');
+            }
         }
 
-        return redirect()->route('post.show', $post->slug)->with('success', 'Post created');
+        return redirect()->route('post.show', $post->slug)
+            ->with('success', 'Post created');
     }
+
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     * @return Factory|View
      */
     public function show(Post $post)
     {
+
         $categories = Category::all();
 
         $postCategories = $post->categories;
@@ -133,14 +171,16 @@ class PostController extends Controller
         //todo set cookie to prevent continuous incrementing
         $post->increment('viewed');
 
-        return view('post.show', compact('post','postCategories','categories'));
+        return view('post.show',
+            compact('post','postCategories','categories'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     * @return Factory|View
      */
     public function edit(Post $post)
     {
@@ -150,15 +190,16 @@ class PostController extends Controller
 
         $postCategoriesArray = $post->categories->pluck('id')->toArray();
 
-        return view('post.edit', compact('post', 'categories', 'postCategoriesArray'));
+        return view('post.edit',
+            compact('post', 'categories', 'postCategoriesArray'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Post $post
+     * @return RedirectResponse
      */
     public function update(Request $request, Post $post)
     {
@@ -172,84 +213,177 @@ class PostController extends Controller
 
         $slug = Str::of($request->title)->slug('_');
 
+        try{
+
         $post->update([
             'title' => $request->input('title'),
             'content' => $request->input('content'),
             'slug' => $slug
         ]);
 
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return redirect()->route('post.edit', $post->slug)
+                ->withInput()
+                ->with('error', 'Post not updated');
+        }
+
         $post->categories()->sync($request->category_id);
 
         if($request->has('image')){
 
-            $this->storeImage($post, $request);
+            if(!$this->storeImage($post, $request)){
 
+                session()->flash('error', 'Image not uploaded');
+            }
 
-            /*$request->validate([
-                'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
-            ]);
-
-            $path = Storage::disk('public')->putFile('post_photo', $request->file('image'));
-
-            $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
-
-            $post->photo()->save($image);*/
         }
 
-        return redirect()->route('post.show', $post->slug)->with('success', 'Post updated');
+        return redirect()->route('post.show', $post->slug)
+            ->with('success', 'Post updated');
     }
 
+
+    /**
+     * Handles saving image on disk and database
+     *
+     * @param Post $post
+     * @param Request $request
+     * @return bool
+     */
     private function storeImage(Post $post, Request $request){
 
         \Gate::authorize('edit-post', $post);
 
         $request->validate([
-            'image'=>'image|max:2048|mimes:jpeg,bmp,png,jpg'
+            'image'=>'required|image|max:2048|mimes:jpeg,bmp,png,jpg'
         ]);
 
-        $extension = $request->file('image')->extension();
+        try {
 
-        $path = Storage::disk('public')
-            ->putFileAs('post_photo', $request->file('image'),
-                $post->id . "." . $extension);
+            $extension = $request->file('image')->extension();
 
-        $image = new Photo(['path'=>$path, 'alt'=>$request->alt]);
+            $path = Storage::disk('public')
+                ->putFileAs('post_photo', $request->file('image'),
+                    $post->id . "." . $extension);
 
-        $post->photo()->save($image);
+            if (!$path) throw new \Exception("Image not uploaded");
+
+            $image = new Photo(['path' => $path, 'alt' => $request->alt]);
+
+            $post->photo()->save($image);
+
+            return true;
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return false;
+        }
     }
 
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     * @return RedirectResponse
+     * @throws \Exception
      */
     public function destroy(Post $post)
     {
         \Gate::authorize('delete-post', $post);
 
-        //$post->comments()->delete();
+        $post->categories()->detach();
 
-        $post->delete();
+        if(!$this->deletePhotoFromDisk($post)){
+
+            session()->flash('error', 'Post image has not been removed');
+        }
+
+        try {
+
+            foreach ($post->allComments as $comment){
+
+                $comment->delete();
+            }
+
+            $post->delete();
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return redirect()->route('post')->with('error', 'Post was not deleted');
+        }
 
         return redirect()->route('post')->with('success', 'Post deleted');
     }
 
 
+    /**
+     * Delete post image from disk and database
+     *
+     * @param Post $post
+     * @return bool
+     */
+    private function deletePhotoFromDisk(Post $post){
+
+        if(!$post->photo || !Storage::disk('public')->exists($post->photo->path)){
+            return false;
+        }
+
+        try{
+
+            if (!Storage::disk('public')->delete($post->photo->path)) {
+                return false;
+            }
+
+            $post->photo->delete();
+
+        }catch (\Throwable $e){
+
+            report($e);
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Delete only image from post
+     *
+     * @param Post $post
+     * @return RedirectResponse
+     */
     public function deletePhoto(Post $post){
 
         \Gate::authorize('edit-post', $post);
 
-        Storage::disk('public')->delete($post->photo->path);
+        if(!$this->deletePhotoFromDisk($post)){
 
-        $post->photo->delete();
+            return back()->with('error', 'Photo not deleted');
+        }
 
         return back()->with('success', 'Photo deleted');
     }
 
 
+    /**
+     * Approve post
+     *
+     * @param $id
+     * @return RedirectResponse|Redirector
+     */
     public function approve($id){
+
+        \Gate::authorize('admin-management');
+
         $post = Post::findOrFail($id);
 
         $post->update(['approved'=>true]);
@@ -259,7 +393,16 @@ class PostController extends Controller
         return redirect('/dashboard#tabs-2');
     }
 
+    /**
+     * Disapprrove post
+     *
+     * @param $id
+     * @return RedirectResponse|Redirector
+     */
     public function disapprove($id){
+
+        \Gate::authorize('admin-management');
+
         $post = Post::findOrFail($id);
 
         $post->update(['approved'=>false]);

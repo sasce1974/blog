@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mt-5">
+    <div class="container mt-3">
         <div class="row">
             <div class="col-lg-8">
                 <!-- Post content-->
@@ -10,18 +10,23 @@
                         <!-- Post title-->
                         <h1 class="fw-bolder mb-1">{{$post->title}}</h1>
                         <!-- Post meta content-->
-                        <div class="text-muted fst-italic mb-2">Posted {{$post->created_at->diffForHumans()}} by {{$post->author->name}}
+                        <div class="text-muted fst-italic mb-2">
+                            Posted {{$post->created_at->diffForHumans()}} by {{$post->author->name}}
 
                             <span class="ml-3">
                                 @can('edit-post', $post)
-                                <a class="mx-1" href="{{route('post.edit', $post->slug)}}">{{__('Edit')}}</a>
+                                <a class="mx-1" href="{{route('post.edit', $post->slug)}}">
+                                    {{__('Edit')}}
+                                </a>
                                 @endcan
 
                                 @can('delete-post', $post)
-                                <form class="d-inline" action="{{route('post.destroy', $post->slug)}}" method="post">
+                                <form class="d-inline" action="{{route('post.destroy', $post->slug)}}"
+                                      method="post">
                                     @csrf
                                     @method('DELETE')
-                                    <input type="submit" class="btn btn-link text-danger" style="margin-top: -5px" value="{{ __('Delete') }}"
+                                    <input type="submit" class="btn btn-link text-danger"
+                                           style="font-size: 100%; margin-top: -1px" value="{{ __('Delete') }}"
                                             onclick="return confirm('Are you sure?')">
                                 </form>
                                 @endcan
@@ -30,14 +35,16 @@
                         </div>
                         <!-- Post categories-->
                         @foreach($postCategories as $category)
-                        <a class="badge bg-secondary text-decoration-none link-light" href="{{route('post.category', $category->id)}}">{{$category->name}}</a>
-{{--                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">Freebies</a>--}}
+                        <a class="badge bg-primary text-decoration-none link-light"
+                           href="{{route('post.category', $category->id)}}">
+                            {{$category->name}}
+                        </a>
                         @endforeach
                     </header>
                     <!-- Preview image figure-->
-                    <figure class="mb-4">
-                        <img class="img-fluid rounded w-100 h-auto" src="{{$post->image(850,350)}}" alt="{{$post->imageAlt}}" />
-                    </figure>
+                    <div class="mb-4 w-100 overflow-hidden show-post-image" style="background-image: url({{$post->image(850,350)}})">
+{{--                        <img class="img-fluid rounded w-100 h-auto" src="{{$post->image(850,350)}}" alt="{{$post->imageAlt}}" />--}}
+                    </div>
                     <!-- Post content-->
                     <section class="mb-5">
                         {!! $post->content !!}

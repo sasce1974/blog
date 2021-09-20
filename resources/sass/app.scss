@@ -6,3 +6,21 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+
+.show-post-image{
+    height:55vh;
+    background-size: auto;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.listed-post-image{
+    width: 100%;
+    margin: 0;
+    height: 150px;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-radius: 0.25rem;
+}
