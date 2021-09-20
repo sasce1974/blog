@@ -98,9 +98,9 @@
 
             @foreach($users as $user)
                 <tr>
-                    <td><img src="{{$user->image(40, 40)}}" width="40" height="40"></td>
+                    <td><img class="rounded shadow-sm" src="{{$user->image(40, 40)}}" width="40" height="40"></td>
                     <td><span class="col2">{{ $user->id }}</span></td>
-                    <td><span class="col5">{{ $user->email_verified_at ? $user->email_verified_at->diffForHumans() : "NO" }}</span></td>
+                    <td><span class="col5">{{ $user->email_verified_at ? "Yes" : "No" }}</span></td>
                     <td><span class="col3"><a href="{{route('user.show', $user->id)}}">{{ $user->name }}</a></span></td>
                     <td><span class="col4">{{ $user->email }}</span></td>
                     <td><span class="col11">{{ $user->role ? $user->role->name : "Unspecified" }}</span></td>

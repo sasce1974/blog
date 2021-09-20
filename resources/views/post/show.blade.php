@@ -54,7 +54,7 @@
                 </article>
                 <!-- Comments section-->
                 @if($errors)
-                    <h5 class="text-danger">{{ $errors->comment->first('comment') }}</h5>
+                    <h6 class="text-danger">{{ $errors->first('comment') }}</h6>
                 @endif
                 <section class="mb-5">
                     <div class="card bg-light">
@@ -87,7 +87,7 @@
             <div class="col-lg-4">
                 <!-- Search widget-->
                 <div class="card mb-4">
-                    <div class="card-header">Search</div>
+                    <div class="card-header">{{ __('Search') }}</div>
                     <div class="card-body">
                         <form action="{{ route('post.search') }}" method="get">
                             <div class="input-group">
@@ -99,7 +99,7 @@
                 </div>
                 <!-- Categories widget-->
                 <div class="card mb-4">
-                    <div class="card-header">Categories</div>
+                    <div class="card-header">{{ __('Categories') }}</div>
                     <div class="card-body">
                         <ul class="list-unstyled d-flex flex-wrap mb-0">
                             @foreach($categories as $category)
@@ -109,10 +109,23 @@
                     </div>
                 </div>
                 <!-- Side widget-->
-                {{--<div class="card mb-4">
-                    <div class="card-header">Side Widget</div>
-                    <div class="card-body">You can put anything you want inside of these side widgets. They are easy to use, and feature the Bootstrap 5 card component!</div>
-                </div>--}}
+
+                <div class="card mb-4">
+                    <div class="card-header">{{ __('Other posts from') }} {{$post->author->name}}</div>
+                    <div class="card-body">
+                        @foreach($postsFromSameAuthor as $author_post)
+                            <div class="border-bottom mb-2">
+                                <h5>
+                                    <a href="{{route('post.show', $author_post->slug)}}">
+                                        {{$author_post->title}}
+                                    </a>
+                                </h5>
+                                <div class="text-muted">{{$author_post->created_at->diffForhumans()}}</div>
+                                <p>{{ \Str::limit($author_post->content, 150) }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
     </div>

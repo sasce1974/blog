@@ -25,12 +25,12 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+
         Gate::define('admin-management', function ($user){
             return $user->isAdmin();
         });
 
-        //Only admin can manage profile
+        //Only admin or owner can manage profile
         Gate::define('manage-profile', function ($user, $profile){
             return $user->isAdmin() || $user->id === $profile->id;
         });

@@ -75,6 +75,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role()->exists() && $this->role->name == 'Admin';
     }
 
+
     /**
      * relationship, user has one photo
      *

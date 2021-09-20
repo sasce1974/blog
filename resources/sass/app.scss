@@ -15,6 +15,17 @@
     background-repeat: no-repeat;
 }
 
+.listed-post{
+    width: 30%;
+    min-width: 180px;
+}
+
+@media only screen and (max-width: 768px) {
+    .listed-post{
+        width: 100%;
+    }
+}
+
 .listed-post-image{
     width: 100%;
     margin: 0;
@@ -22,5 +33,6 @@
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    border-radius: 0.25rem;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
 }

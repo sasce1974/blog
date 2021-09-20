@@ -28,8 +28,6 @@
                         <div class="card-img-top w-100 show-post-image"
                              style="background-image: url('{{$featured->image(850, 350)}}');">
                         </div>
-{{--                        <img class="card-img-top" width="850" height="350"
-                            src="{{$featured->image(850, 350)}}" alt="{{$featured->imageAlt}}" />--}}
                     </a>
                     <div class="card-body">
                         <div class="small text-muted">Created {{$featured->created_at->diffForHumans()}}
@@ -79,7 +77,7 @@
                 <div class="d-flex flex-wrap" style="gap: 15px">
 
                 @foreach($posts as $post)
-                        <div class="card mb-4 border-0 shadow" style="width: 30%; min-width: 180px">
+                        <div class="card mb-4 border-0 shadow listed-post">
                             <div class="listed-post-image"
                                  style="background-image: url({{$post->image(250, 150)}})">
                             </div>

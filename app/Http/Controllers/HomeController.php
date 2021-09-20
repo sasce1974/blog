@@ -6,9 +6,8 @@ use App\Category;
 use App\Post;
 use App\Role;
 use App\User;
-use Couchbase\UserSettings;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
@@ -20,28 +19,28 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+
+        $this->middleware('admin');
     }
+
 
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
-        if(Auth::user()->isAdmin()){
 
-            $users = User::all();
+        $users = User::all();
 
-            $posts = Post::with('allComments')->get(); //->paginate(5)->fragment('tabs-2');
+        $posts = Post::with('allComments')
+            ->orderByDesc('id')->get(); //->paginate(5)->fragment('tabs-2');
 
-            $categories = Category::all();
+        $categories = Category::all();
 
-            $roles = Role::all();
-            //dd($posts[3]->allComments);
-            return view('home', compact('users', 'posts', 'categories', 'roles'));
-        }
+        $roles = Role::all();
 
-        return redirect('/');
+        return view('home', compact('users', 'posts', 'categories', 'roles'));
     }
 }

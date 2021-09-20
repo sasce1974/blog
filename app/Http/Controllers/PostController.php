@@ -20,6 +20,17 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth')
+            ->except(['index', 'indexByCategory', 'search', 'show']);
+
+        $this->middleware('admin')
+            ->only(['approve', 'disapprove']);
+    }
+
+
     /**
      * Display a listing of the resource.
      * Main page, open to view by all
@@ -103,7 +114,6 @@ class PostController extends Controller
     {
 
         return view('post.create', ['categories' => Category::all()]);
-
     }
 
 
@@ -173,8 +183,12 @@ class PostController extends Controller
         //todo set cookie to prevent continuous incrementing
         $post->increment('viewed');
 
+        $postsFromSameAuthor = Post::where('user_id', $post->author->id)
+            ->where('id', '<>', $post->id)
+            ->orderByDesc('created_at')->get();
+
         return view('post.show',
-            compact('post','postCategories','categories'));
+            compact('post','postCategories','categories', 'postsFromSameAuthor'));
     }
 
 

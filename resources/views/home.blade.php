@@ -17,7 +17,7 @@
                         <div id="tabs">
                             <ul>
                                 <li><a href="#tabs-1">Users</a></li>
-                                <li><a href="#tabs-2">Posts</a></li>
+                                <li><a href="#tabs-2">Posts/Comments</a></li>
                                 <li><a href="#tabs-3">Post Categories</a></li>
                                 <li><a href="#tabs-4">User roles</a></li>
                             </ul>

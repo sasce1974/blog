@@ -140,6 +140,6 @@ class Post extends Model
      */
     public function getContentAttribute($content){
 
-        return nl2br(strip_tags($content, $this->allowed_tags));
+        return strip_tags($content, $this->allowed_tags);
     }
 }
