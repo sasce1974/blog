@@ -46,18 +46,17 @@ Route::delete('/post/{post}/photo', 'PostController@deletePhoto')
 
 
 //User routes
-Route::get('/user', 'UserController@index');
+
 Route::post('/user', 'UserController@store')->name('user.store');
 Route::get('/user/{user}', 'UserController@show')->name('user.show');
 Route::get('/user/{user}/edit', 'UserController@edit')->name('user.edit');
 Route::put('user/{user}', 'UserController@update')->name('user.update');
 Route::delete('user/{user}', 'UserController@destroy')->name('user.destroy');
 Route::put('/user/{user}/photo', 'UserController@uploadPhoto')
-    ->name('user.photo.store')
-    ->middleware('auth');
+    ->name('user.photo.store');
 Route::delete('/user/{user}/photo', 'UserController@deletePhoto')
-    ->name('user.photo.destroy')
-    ->middleware('auth');
+    ->name('user.photo.destroy');
+
 
 //Category routes
 Route::post('/category/store', 'CategoryController@store')
@@ -77,3 +76,7 @@ Route::patch('/comment/{id}/approve', 'CommentController@approve')
 Route::patch('/comment/{id}/disapprove', 'CommentController@disapprove')
     ->name('comment.disapprove')
     ->middleware(['auth', 'admin']);
+
+
+//TESTS
+
