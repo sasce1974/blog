@@ -311,9 +311,11 @@ class PostController extends Controller
 
         $post->categories()->detach();
 
-        if(!$this->deletePhotoFromDisk($post)){
+        if($post->photo) {
+            if (!$this->deletePhotoFromDisk($post)) {
 
-            session()->flash('error', 'Post image has not been removed');
+                session()->flash('error', 'Post image has not been removed');
+            }
         }
 
         try {
