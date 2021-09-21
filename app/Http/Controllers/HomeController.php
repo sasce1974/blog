@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Comment;
 use App\Post;
 use App\Role;
 use App\User;
@@ -37,10 +38,13 @@ class HomeController extends Controller
         $posts = Post::with('allComments', 'author')
             ->orderByDesc('id')->get(); //->paginate(5)->fragment('tabs-2');
 
+        $comments_count = Comment::count();
+
         $categories = Category::all();
 
         $roles = Role::all();
 
-        return view('home', compact('users', 'posts', 'categories', 'roles'));
+        return view('home',
+            compact('users', 'posts', 'categories', 'roles', 'comments_count'));
     }
 }

@@ -14,6 +14,30 @@
                         </div>
                     @endif
 
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-evenly">
+                        <div class="card m-2 px-3 py-1 bg-light text-center">
+                            <div class="small">Users</div>
+                            <h4>{{$users->count()}}</h4>
+                        </div>
+                        <div class="card m-2 px-3 py-1 bg-light text-center">
+                            <div class="small">Posts</div>
+                            <h4>{{$posts->count()}}</h4>
+                        </div>
+                        <div class="card m-2 px-3 py-1 bg-light text-center">
+                            <div class="small">Comments</div>
+                            <h4>{{$comments_count}}</h4>
+                        </div>
+                        <div class="card m-2 px-3 py-1 bg-light text-center">
+                            <div class="small">Roles</div>
+                            <h4>{{$roles->count()}}</h4>
+                        </div>
+                        <div class="card m-2 px-3 py-1 bg-light text-center">
+                            <div class="small">Categories</div>
+                            <h4>{{$categories->count()}}</h4>
+                        </div>
+                    </div>
+
+
                         <div id="tabs">
                             <ul>
                                 <li><a href="#tabs-1">Users</a></li>
