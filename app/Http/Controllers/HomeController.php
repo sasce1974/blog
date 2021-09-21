@@ -32,9 +32,9 @@ class HomeController extends Controller
     public function index()
     {
 
-        $users = User::all();
+        $users = User::with('role')->get();
 
-        $posts = Post::with('allComments')
+        $posts = Post::with('allComments', 'author')
             ->orderByDesc('id')->get(); //->paginate(5)->fragment('tabs-2');
 
         $categories = Category::all();
